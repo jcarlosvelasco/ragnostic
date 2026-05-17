@@ -1,3 +1,4 @@
 fastapi[standard]
 langchain_community
 requests
+qdrant-client

@@ -1,3 +1,4 @@
 .env
 src/data/docs/
 __pycache__
+web.html
