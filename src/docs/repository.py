@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from src.docs.core.chunker import chunk_document_content
-from src.docs.core.embedder import convert_to_embedding
+from src.docs.core.embedder import convert_to_embedding, ensure_model
 from src.docs.core.scraper import store_docs_in_files
 from src.docs.core.vector_store import append_vector, get_client, is_store_empty
 
@@ -25,6 +25,8 @@ async def load_docs():
         return
 
     logger.info("Store is empty, starting ingestion...")
+
+    ensure_model()
 
     await store_docs_in_files()
 
