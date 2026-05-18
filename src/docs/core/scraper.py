@@ -6,7 +6,7 @@ import requests
 
 
 def get_docs_folder_path() -> str:
-    current_dir = Path(__file__).parent.parent
+    current_dir = Path(__file__).parent.parent.parent
     docs_path = str(current_dir / "data" / "docs")
     return docs_path
 
@@ -23,7 +23,7 @@ def get_document_filename(url: str) -> str:
     return filename
 
 
-async def load_docs():
+async def store_docs_in_files():
     docs_folder = get_docs_folder_path()
     if not Path(docs_folder).exists():
         print(f"Creating docs folder at {docs_folder}")
