@@ -13,7 +13,7 @@ def get_client() -> QdrantClient:
 
 def is_store_empty(client: QdrantClient, collection_name: str) -> bool:
     if not client.collection_exists(collection_name):
-        return False
+        return True
 
     collection = client.get_collection(collection_name=collection_name)
     return collection.points_count == 0

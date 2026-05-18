@@ -1,8 +1,11 @@
+import logging
 import re
 from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 
 def get_docs_folder_path() -> str:
@@ -26,14 +29,14 @@ def get_document_filename(url: str) -> str:
 async def store_docs_in_files():
     docs_folder = get_docs_folder_path()
     if not Path(docs_folder).exists():
-        print(f"Creating docs folder at {docs_folder}")
+        logger.info("Creating docs folder at %s", docs_folder)
         Path(docs_folder).mkdir(parents=True)
 
     if len(list(Path(docs_folder).glob("*"))) > 0:
-        print("Skipping scraping, docs folder already contains files")
+        logger.info("Skipping scraping, docs folder already contains files")
         return
 
-    print("Scraping docs from langchain.com...")
+    logger.info("Scraping docs from langchain.com...")
 
     index_url = "https://docs.langchain.com/llms.txt"
     text = requests.get(index_url, timeout=30).text
@@ -50,6 +53,7 @@ async def store_docs_in_files():
         if "langsmith" in url or "javascript" in url:
             continue
 
+        logger.info("Scraping %s", url)
         markdown = requests.get(url, timeout=30).text
 
         filename = get_document_filename(url)
@@ -58,4 +62,4 @@ async def store_docs_in_files():
 
         filepath.write_text(markdown, encoding="utf-8")
 
-    print("Scraping completed")
+    logger.info("Scraping completed: %d docs downloaded", len(urls))

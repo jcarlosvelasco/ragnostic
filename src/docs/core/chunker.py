@@ -1,11 +1,15 @@
+import logging
+
 from src.docs.model.payload import Payload
 
 CHUNK_SIZE = 200
 CHUNK_OVERLAP = 20
 
+logger = logging.getLogger(__name__)
+
 
 def chunk_document_content(content: str, doc_file_path: str) -> list[Payload]:
-    print(f"Chunking document {doc_file_path}")
+    logger.info("Chunking document %s", doc_file_path)
     chunks = []
     for i in range(0, len(content), CHUNK_SIZE - CHUNK_OVERLAP):
         chunk = content[i : i + CHUNK_SIZE]
@@ -16,5 +20,5 @@ def chunk_document_content(content: str, doc_file_path: str) -> list[Payload]:
                 source=doc_file_path,
             )
         )
-    print("Chunking completed")
+    logger.info("Chunking completed for %s: %d chunks", doc_file_path, len(chunks))
     return chunks
