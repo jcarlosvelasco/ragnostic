@@ -32,6 +32,8 @@ async def load_docs():
             with open(file_path, "r") as f:
                 content = f.read()
                 chunks = chunk_document_content(content, file_path)
+
+                print(f"Loading document {file_path} into store")
                 for chunk in chunks:
                     embedding = convert_to_embedding(chunk.content)
                     await append_vector(

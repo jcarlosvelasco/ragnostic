@@ -7,7 +7,7 @@ from src.docs.model.payload import Payload
 
 
 def get_client() -> QdrantClient:
-    client = QdrantClient(url="http://localhost:6333")
+    client = QdrantClient(url="http://qdrant:6333")
     return client
 
 

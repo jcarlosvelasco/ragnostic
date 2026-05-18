@@ -5,6 +5,7 @@ CHUNK_OVERLAP = 20
 
 
 def chunk_document_content(content: str, doc_file_path: str) -> list[Payload]:
+    print(f"Chunking document {doc_file_path}")
     chunks = []
     for i in range(0, len(content), CHUNK_SIZE - CHUNK_OVERLAP):
         chunk = content[i : i + CHUNK_SIZE]
@@ -15,4 +16,5 @@ def chunk_document_content(content: str, doc_file_path: str) -> list[Payload]:
                 source=doc_file_path,
             )
         )
+    print("Chunking completed")
     return chunks

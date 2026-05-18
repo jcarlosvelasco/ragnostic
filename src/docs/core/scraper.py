@@ -33,6 +33,8 @@ async def store_docs_in_files():
         print("Skipping scraping, docs folder already contains files")
         return
 
+    print("Scraping docs from langchain.com...")
+
     index_url = "https://docs.langchain.com/llms.txt"
     text = requests.get(index_url, timeout=30).text
 
@@ -55,3 +57,5 @@ async def store_docs_in_files():
         filepath = Path(docs_folder) / f"{filename}"
 
         filepath.write_text(markdown, encoding="utf-8")
+
+    print("Scraping completed")
