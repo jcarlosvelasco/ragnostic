@@ -2,10 +2,12 @@ import json
 import logging
 
 import httpx
+from langchain_ollama import OllamaEmbeddings
 
 logger = logging.getLogger(__name__)
 
 EMBEDDING_MODEL = "nomic-embed-text"
+embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL, base_url="http://ollama:11434")
 
 
 async def ensure_embedding_model():
@@ -29,14 +31,4 @@ async def ensure_embedding_model():
 
 
 async def convert_to_embedding(text: str) -> list[float]:
-    url = "http://ollama:11434/api/embeddings"
-    data = {"model": EMBEDDING_MODEL, "prompt": text}
-
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url, json=data)
-        body = json.loads(response.text)
-
-        if "error" in body:
-            raise RuntimeError(f"Ollama error: {body['error']}")
-
-    return body["embedding"]
+    return await embeddings.aembed_query(text)

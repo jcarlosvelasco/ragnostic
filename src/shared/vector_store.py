@@ -33,7 +33,7 @@ async def create_vector_store(
     distance: Distance = Distance.DOT,
 ):
     exists = await client.collection_exists(collection_name)
-    if not exists:
+    if exists:
         return
 
     await client.create_collection(
@@ -52,8 +52,8 @@ async def append_vector(
     vector: list[float],
     payload: Payload,
 ):
-    is_empty = await is_store_empty(client, collection_name)
-    if is_empty:
+    exists = await client.collection_exists(collection_name)
+    if not exists:
         await create_vector_store(client, collection_name, len(vector))
 
     point_id = content_to_id(payload.content)
