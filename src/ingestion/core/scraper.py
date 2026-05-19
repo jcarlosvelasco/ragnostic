@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 from urllib.parse import urlparse
 
-import requests
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,11 @@ async def store_docs_in_files():
     logger.info("Scraping docs from langchain.com...")
 
     index_url = "https://docs.langchain.com/llms.txt"
-    text = requests.get(index_url, timeout=30).text
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(index_url, timeout=None)
+        response.raise_for_status()
+        text = response.text
 
     urls = []
 
@@ -54,7 +58,10 @@ async def store_docs_in_files():
             continue
 
         logger.info("Scraping %s", url)
-        markdown = requests.get(url, timeout=30).text
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, timeout=30)
+            response.raise_for_status()
+            markdown = response.text
 
         filename = get_document_filename(url)
 
