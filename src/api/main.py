@@ -5,7 +5,7 @@ from fastapi import FastAPI
 
 from src.api.schema.RetrieveInfoRequest import RetrieveInfoRequest
 from src.generation.chain import ensure_generation_model, generate_response
-from src.ingestion.repository import clean_all_data
+from src.ingestion.repository import clean_all_data, load_docs
 from src.retrieval.repository import retrieve_from_query
 from src.shared.embedder import ensure_embedding_model
 
@@ -42,4 +42,10 @@ async def retrieve(query: RetrieveInfoRequest):
 @app.get("/clean")
 async def clean_data():
     await clean_all_data()
+    return {"result": "success"}
+
+
+@app.post("/load_docs")
+async def ingest_docs():
+    await load_docs()
     return {"result": "success"}
