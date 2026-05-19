@@ -93,3 +93,7 @@ async def retrieve_info(
         for p in search_result.points
         if p.payload is not None
     ]
+
+
+async def clean_vector_store(client: AsyncQdrantClient, collection_name: str):
+    await client.delete_collection(collection_name=collection_name)
