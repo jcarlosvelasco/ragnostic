@@ -6,13 +6,13 @@ You are an expert assistant. Answer the following question based only on the pro
 The context is a JSON array of retrieved documents with this format:
 
 [
-  {
+  {{
     "id": str,
     "score": float,
     "content": str,
     "chunk_number": int,
     "source": str
-  }
+  }}
 ]
 
 <context>

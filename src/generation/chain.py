@@ -16,7 +16,7 @@ async def ensure_generation_model():
     data = {"model": CHAT_MODEL}
     logger.info("Pulling model %s...", CHAT_MODEL)
 
-    async with httpx.AsyncClient(timeout=300) as client:
+    async with httpx.AsyncClient() as client:
         async with client.stream("POST", url, json=data) as response:
             response.raise_for_status()
 
@@ -36,20 +36,29 @@ async def generate_response(query: str, documents: list[RetrievedDocument]) -> s
 
     retrieved_documents = [doc.model_dump() for doc in documents]
 
-    prompt_value = system_prompt_template.invoke(
-        {
-            "context": json.dumps(retrieved_documents),
-            "question": query,
-        }
+    prompt = system_prompt_template.format(
+        context=json.dumps(retrieved_documents),
+        question=query,
     )
 
-    data = {"model": CHAT_MODEL, "prompt": prompt_value}
+    data = {
+        "model": CHAT_MODEL,
+        "prompt": prompt,
+    }
 
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url, json=data)
-        body = json.loads(response.text)
+    async with httpx.AsyncClient(timeout=None) as client:
+        async with client.stream("POST", url, json=data) as response:
+            response.raise_for_status()
 
-        if "error" in body:
-            raise RuntimeError(f"Ollama error: {body['error']}")
+            full = ""
 
-    return body["response"]
+            async for line in response.aiter_lines():
+                if line:
+                    try:
+                        obj = json.loads(line)
+                        if "response" in obj:
+                            full += obj["response"]
+                    except json.JSONDecodeError:
+                        continue
+
+    return full

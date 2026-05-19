@@ -13,7 +13,7 @@ async def ensure_embedding_model():
     data = {"model": EMBEDDING_MODEL}
     logger.info("Pulling model %s...", EMBEDDING_MODEL)
 
-    async with httpx.AsyncClient(timeout=300) as client:
+    async with httpx.AsyncClient() as client:
         async with client.stream("POST", url, json=data) as response:
             response.raise_for_status()
 
