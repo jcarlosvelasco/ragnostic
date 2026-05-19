@@ -3,12 +3,18 @@ import hashlib
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
 
-from src.docs.model.payload import Payload
+from src.ingestion.model.payload import Payload
+from src.retrieval.model.RetrievedDocument import RetrievedDocument
+
+_client = QdrantClient(url="http://qdrant:6333")
 
 
 def get_client() -> QdrantClient:
-    client = QdrantClient(url="http://qdrant:6333")
-    return client
+    return _client
+
+
+def get_docs_collection_name() -> str:
+    return "docs_store"
 
 
 def is_store_empty(client: QdrantClient, collection_name: str) -> bool:
@@ -51,3 +57,29 @@ async def append_vector(
         wait=True,
         points=[PointStruct(id=point_id, vector=vector, payload=payload.to_dict())],
     )
+
+
+def retrieve_info(
+    client: QdrantClient,
+    collection_name: str,
+    vector: list[float],
+    n_items: int = 3,
+) -> list[RetrievedDocument]:
+    if not client.collection_exists(collection_name):
+        return []
+
+    search_result = client.query_points(
+        collection_name=collection_name, query=vector, with_payload=True, limit=n_items
+    ).points
+
+    return [
+        RetrievedDocument(
+            id=str(p.id),
+            score=p.score,
+            content=p.payload["content"],
+            chunk_number=p.payload["chunk_number"],
+            source=p.payload["source"],
+        )
+        for p in search_result
+        if p.payload is not None
+    ]

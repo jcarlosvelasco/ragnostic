@@ -2,10 +2,15 @@ import logging
 import os
 from pathlib import Path
 
-from src.docs.core.chunker import chunk_document_content
-from src.docs.core.embedder import convert_to_embedding, ensure_model
-from src.docs.core.scraper import store_docs_in_files
-from src.docs.core.vector_store import append_vector, get_client, is_store_empty
+from src.ingestion.core.chunker import chunk_document_content
+from src.ingestion.core.scraper import store_docs_in_files
+from src.shared.embedder import convert_to_embedding, ensure_model
+from src.shared.vector_store import (
+    append_vector,
+    get_client,
+    get_docs_collection_name,
+    is_store_empty,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +22,7 @@ def get_docs_folder_path() -> str:
 
 
 async def load_docs():
-    collection_name = "docs_store"
+    collection_name = get_docs_collection_name()
     qdrant_client = get_client()
 
     if not is_store_empty(qdrant_client, collection_name):
@@ -39,13 +44,17 @@ async def load_docs():
                 content = f.read()
                 chunks = chunk_document_content(content, file_path)
 
-                logger.info("Loading document %s into store (%d chunks)", file_path, len(chunks))
+                logger.info(
+                    "Loading document %s into store (%d chunks)", file_path, len(chunks)
+                )
                 for i, chunk in enumerate(chunks):
                     embedding = convert_to_embedding(chunk.content)
                     await append_vector(
                         qdrant_client, collection_name, embedding, chunk
                     )
                     if (i + 1) % 10 == 0:
-                        logger.info("  Progress: %d/%d chunks inserted", i + 1, len(chunks))
+                        logger.info(
+                            "  Progress: %d/%d chunks inserted", i + 1, len(chunks)
+                        )
 
     logger.info("Ingestion complete")

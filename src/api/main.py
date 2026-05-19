@@ -2,8 +2,10 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from pydantic import BaseModel
 
-from src.docs.repository import load_docs
+from src.ingestion.repository import load_docs
+from src.retrieval.repository import retrive_from_query
 
 logging.basicConfig(
     level=logging.INFO,
@@ -24,3 +26,9 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+
+@app.post("/retrieve")
+def retrieve(query: RetrieveInfoRequest):
+    retrive_from_query(query.query)
+    return {"info": ""}

@@ -1,6 +1,6 @@
 import logging
 
-from src.docs.model.payload import Payload
+from src.ingestion.model.payload import Payload
 
 CHUNK_SIZE = 200
 CHUNK_OVERLAP = 20
