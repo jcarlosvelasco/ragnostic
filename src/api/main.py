@@ -4,8 +4,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.api.schema.RetrieveInfoRequest import RetrieveInfoRequest
-from src.ingestion.repository import load_docs
-from src.retrieval.repository import retrive_from_query
+from src.generation.chain import ensure_generation_model, generate_response
+from src.retrieval.repository import retrieve_from_query
+from src.shared.embedder import ensure_embedding_model
 
 logging.basicConfig(
     level=logging.INFO,
@@ -16,7 +17,8 @@ logging.basicConfig(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await load_docs()
+    await ensure_generation_model()
+    await ensure_embedding_model()
     yield
 
 
@@ -29,6 +31,8 @@ def read_root():
 
 
 @app.post("/retrieve")
-def retrieve(query: RetrieveInfoRequest):
-    retrive_from_query(query.query)
-    return {"info": ""}
+async def retrieve(query: RetrieveInfoRequest):
+    response = await retrieve_from_query(query.query)
+    result = await generate_response(query.query, response)
+    print(result)
+    return {"info": result}
