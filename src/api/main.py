@@ -2,8 +2,8 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from pydantic import BaseModel
 
+from src.api.schema.RetrieveInfoRequest import RetrieveInfoRequest
 from src.ingestion.repository import load_docs
 from src.retrieval.repository import retrive_from_query
 
