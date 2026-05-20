@@ -24,8 +24,8 @@ def get_docs_folder_path() -> str:
     return docs_path
 
 
-EMBEDDING_CONCURRENCY = 20  # ajusta según límites de tu API
-BATCH_SIZE = 100  # chunks por upsert a Qdrant
+EMBEDDING_CONCURRENCY = 20
+BATCH_SIZE = 100
 
 
 async def load_docs():
@@ -39,7 +39,6 @@ async def load_docs():
     logger.info("Store is empty, starting ingestion...")
     await store_docs_in_files()
 
-    # 1. Recoger todos los chunks (síncrono)
     docs_folder_path = get_docs_folder_path()
     all_chunks = []
     for root, _, files in os.walk(docs_folder_path):
@@ -58,7 +57,6 @@ async def load_docs():
     total = len(all_chunks)
     logger.info("Total chunks to ingest: %d", total)
 
-    # 2. Generar embeddings concurrentemente
     sem = asyncio.Semaphore(EMBEDDING_CONCURRENCY)
 
     async def embed(chunk):
@@ -68,10 +66,8 @@ async def load_docs():
     logger.info("Generating embeddings...")
     embeddings = await asyncio.gather(*[embed(c) for c in all_chunks])
 
-    # 3. Asegurar colección una sola vez (con el tamaño del primer vector)
     await ensure_collection_exists(qdrant_client, collection_name, len(embeddings[0]))
 
-    # 4. Upsert en batches
     logger.info("Storing vectors in Qdrant...")
     for i in range(0, total, BATCH_SIZE):
         batch_chunks = all_chunks[i : i + BATCH_SIZE]
