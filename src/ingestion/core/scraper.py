@@ -63,6 +63,7 @@ async def store_docs_in_files():
 
     for url in urls:
         if any(filtered in url for filtered in filtered_urls):
+            logger.warning(f"Skipping {url}")
             continue
 
         logger.info("Scraping %s", url)

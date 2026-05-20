@@ -66,6 +66,37 @@ async def append_vector(
     )
 
 
+async def ensure_collection_exists(
+    client: AsyncQdrantClient,
+    collection_name: str,
+    vector_size: int,
+):
+    exists = await client.collection_exists(collection_name)
+    if not exists:
+        await create_vector_store(client, collection_name, vector_size)
+
+
+async def append_vectors_batch(
+    client: AsyncQdrantClient,
+    collection_name: str,
+    vectors: list[list[float]],
+    payloads: list[Payload],
+):
+    points = [
+        PointStruct(
+            id=content_to_id(payload.content),
+            vector=vector,
+            payload=payload.to_dict(),
+        )
+        for vector, payload in zip(vectors, payloads)
+    ]
+    await client.upsert(
+        collection_name=collection_name,
+        wait=True,
+        points=points,
+    )
+
+
 async def retrieve_info(
     client: AsyncQdrantClient,
     collection_name: str,
