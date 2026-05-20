@@ -21,8 +21,6 @@ chain = system_prompt_template | llm | StrOutputParser()
 
 async def ensure_generation_model():
     url = f"{OLLAMA_BASE_URL}/api/pull"
-    logger.warning("OLLAMA_BASE_URL: %s | URL: %s", OLLAMA_BASE_URL, url)
-
     data = {"model": CHAT_MODEL}
     logger.info("Pulling model %s...", CHAT_MODEL)
 
