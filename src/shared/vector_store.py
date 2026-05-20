@@ -1,4 +1,5 @@
 import hashlib
+import random
 
 from qdrant_client.async_qdrant_client import AsyncQdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
@@ -97,3 +98,27 @@ async def retrieve_info(
 
 async def clean_vector_store(client: AsyncQdrantClient, collection_name: str):
     await client.delete_collection(collection_name=collection_name)
+
+
+async def fetch_random_chunks(
+    client: AsyncQdrantClient, collection_name: str, n: int = 25
+) -> list[dict]:
+    count_response = await client.count(collection_name=collection_name)
+    count = count_response.count
+
+    all_points, _ = await client.scroll(
+        collection_name=collection_name,
+        limit=count,
+        with_payload=True,
+        with_vectors=False,
+    )
+
+    sample = random.sample(all_points, min(n, len(all_points)))
+    return [
+        {
+            "text": p.payload["content"],
+            "source": p.payload["source"],
+        }
+        for p in sample
+        if p.payload is not None
+    ]

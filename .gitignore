@@ -4,3 +4,4 @@ __pycache__
 web.html
 arch.txt
 todo.txt
+evals/golden_dataset.json

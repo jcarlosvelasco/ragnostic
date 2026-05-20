@@ -53,9 +53,18 @@ async def store_docs_in_files():
             url = line.split("(")[1].split(")")[0]
             urls.append(url)
 
+    filtered_urls = {
+        "langsmith",
+        "javascript",
+        "api-reference",
+        "frontend",
+        "deepagents",
+    }
+
     for url in urls:
-        if "langsmith" in url or "javascript" in url:
+        if any(filtered in url for filtered in filtered_urls):
             continue
+
         logger.info("Scraping %s", url)
 
         try:

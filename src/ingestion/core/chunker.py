@@ -2,8 +2,8 @@ import logging
 
 from src.ingestion.model.payload import Payload
 
-CHUNK_SIZE = 200
-CHUNK_OVERLAP = 20
+CHUNK_SIZE = 500
+CHUNK_OVERLAP = 50
 
 logger = logging.getLogger(__name__)
 
