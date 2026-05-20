@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 import httpx
 from langchain_core.output_parsers import StrOutputParser
@@ -12,12 +13,16 @@ logger = logging.getLogger(__name__)
 
 CHAT_MODEL = "gemma4:e2b"
 
-llm = ChatOllama(model=CHAT_MODEL, temperature=0.2, base_url="http://ollama:11434")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
+
+llm = ChatOllama(model=CHAT_MODEL, temperature=0.2, base_url=OLLAMA_BASE_URL)
 chain = system_prompt_template | llm | StrOutputParser()
 
 
 async def ensure_generation_model():
-    url = "http://ollama:11434/api/pull"
+    url = f"{OLLAMA_BASE_URL}/api/pull"
+    logger.warning("OLLAMA_BASE_URL: %s | URL: %s", OLLAMA_BASE_URL, url)
+
     data = {"model": CHAT_MODEL}
     logger.info("Pulling model %s...", CHAT_MODEL)
 

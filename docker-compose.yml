@@ -6,24 +6,17 @@ services:
     volumes:
       - qdrant_storage:/qdrant/storage
 
-  ollama:
-    image: ollama/ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-
   app:
     build: ./
+    environment:
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
     ports:
       - "8000:8000"
     volumes:
       - app_docs:/src/data/docs
     depends_on:
       - qdrant
-      - ollama
 
 volumes:
   qdrant_storage:
   app_docs:
-  ollama_data:

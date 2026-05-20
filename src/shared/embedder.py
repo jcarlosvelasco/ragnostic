@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 import httpx
 from langchain_ollama import OllamaEmbeddings
@@ -7,11 +8,13 @@ from langchain_ollama import OllamaEmbeddings
 logger = logging.getLogger(__name__)
 
 EMBEDDING_MODEL = "nomic-embed-text"
-embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL, base_url="http://ollama:11434")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
+
+embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL, base_url=OLLAMA_BASE_URL)
 
 
 async def ensure_embedding_model():
-    url = "http://ollama:11434/api/pull"
+    url = f"{OLLAMA_BASE_URL}/api/pull"
     data = {"model": EMBEDDING_MODEL}
     logger.info("Pulling model %s...", EMBEDDING_MODEL)
 
