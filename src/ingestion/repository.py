@@ -26,7 +26,8 @@ async def load_docs():
     collection_name = get_docs_collection_name()
     qdrant_client = get_client()
 
-    if not is_store_empty(qdrant_client, collection_name):
+    is_empty = await is_store_empty(qdrant_client, collection_name)
+    if not is_empty:
         logger.info("Docs already loaded in store, skipping ingestion")
         return
 

@@ -53,20 +53,23 @@ async def store_docs_in_files():
             url = line.split("(")[1].split(")")[0]
             urls.append(url)
 
-    for url in urls[:20]:
+    for url in urls:
         if "langsmith" in url or "javascript" in url:
             continue
-
         logger.info("Scraping %s", url)
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, timeout=30)
-            response.raise_for_status()
-            markdown = response.text
 
-        filename = get_document_filename(url)
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url, timeout=30)
+                response.raise_for_status()
+                markdown = response.text
 
-        filepath = Path(docs_folder) / f"{filename}"
+            filename = get_document_filename(url)
+            filepath = Path(docs_folder) / f"{filename}"
+            filepath.write_text(markdown, encoding="utf-8")
 
-        filepath.write_text(markdown, encoding="utf-8")
+        except (httpx.HTTPStatusError, httpx.RequestError) as e:
+            logger.warning("Skipping %s — %s", url, e)
+            continue
 
     logger.info("Scraping completed: %d docs downloaded", len(urls))
