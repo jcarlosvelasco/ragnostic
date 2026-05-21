@@ -96,8 +96,11 @@ async def run_ragas(rows: list[EvaluationRow]) -> List[ExperimentResult]:
     results: list[ExperimentResult] = []
     for i, row in enumerate(rows):
         print(f"Running question {i + 1}/{len(rows)}")
-        result = await run_evaluation(row, llm, embeddings)
-        results.append(result)
+        try:
+            result = await run_evaluation(row, llm, embeddings)
+            results.append(result)
+        except Exception as e:
+            print(f"  ⚠️  Error en pregunta {i + 1}: {e} — skipping")
     return results
 
 
