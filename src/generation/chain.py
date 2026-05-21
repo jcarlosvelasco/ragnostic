@@ -1,10 +1,12 @@
 import json
 import logging
 import os
+import re
 
 import httpx
 from langchain_core.output_parsers import StrOutputParser
 from langchain_ollama import ChatOllama
+from pydantic import BaseModel
 
 from src.generation.prompts import system_prompt_template
 from src.shared.model.RetrievedDocument import RetrievedDocument
@@ -39,11 +41,20 @@ async def ensure_generation_model():
     logger.info("Model %s ready", CHAT_MODEL)
 
 
-async def generate_response(query: str, documents: list[RetrievedDocument]) -> str:
+class GenerateResponse(BaseModel):
+    response: str
+    context: str
+
+
+async def generate_response(
+    query: str, documents: list[RetrievedDocument]
+) -> GenerateResponse:
     retrieved_documents = [doc.model_dump() for doc in documents]
 
     result = await chain.ainvoke(
         {"context": json.dumps(retrieved_documents), "question": query}
     )
 
-    return result
+    retrieved_documents_content_json = json.dumps([doc.content for doc in documents])
+
+    return GenerateResponse(response=result, context=retrieved_documents_content_json)

@@ -5,7 +5,7 @@ FROM python:3.11-alpine AS builder
 
 WORKDIR /backend
 
-RUN apk add --no-cache gcc musl-dev libffi-dev postgresql-dev
+RUN apk add --no-cache gcc musl-dev libffi-dev postgresql-dev g++
 
 COPY requirements.txt .
 

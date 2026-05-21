@@ -36,7 +36,7 @@ async def retrieve(query: RetrieveInfoRequest):
     response = await retrieve_from_query(query.query)
     result = await generate_response(query.query, response)
     print(result)
-    return {"info": result}
+    return {"result": "success", "answer": result.response, "context": result.context}
 
 
 @app.get("/clean")
