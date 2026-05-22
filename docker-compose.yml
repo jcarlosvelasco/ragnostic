@@ -10,13 +10,17 @@ services:
     build: ./
     environment:
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - HF_HUB_DISABLE_XET=1
     ports:
       - "8000:8000"
     volumes:
       - app_docs:/src/data/docs
+      - huggingface_cache:/home/appuser/.cache/huggingface
+
     depends_on:
       - qdrant
 
 volumes:
   qdrant_storage:
   app_docs:
+  huggingface_cache:

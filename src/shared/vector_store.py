@@ -10,34 +10,29 @@ from src.shared.model.RetrievedDocument import RetrievedDocument
 _client = AsyncQdrantClient(url="http://qdrant:6333")
 
 
-def get_client() -> AsyncQdrantClient:
-    return _client
-
-
 def get_docs_collection_name() -> str:
     return "docs_store"
 
 
-async def is_store_empty(client: AsyncQdrantClient, collection_name: str) -> bool:
-    exists = await client.collection_exists(collection_name)
+async def is_store_empty(collection_name: str) -> bool:
+    exists = await _client.collection_exists(collection_name)
     if not exists:
         return True
 
-    collection = await client.get_collection(collection_name=collection_name)
+    collection = await _client.get_collection(collection_name=collection_name)
     return collection.points_count == 0
 
 
 async def create_vector_store(
-    client: AsyncQdrantClient,
     collection_name: str,
     size: int,
     distance: Distance = Distance.DOT,
 ):
-    exists = await client.collection_exists(collection_name)
+    exists = await _client.collection_exists(collection_name)
     if exists:
         return
 
-    await client.create_collection(
+    await _client.create_collection(
         collection_name=collection_name,
         vectors_config=VectorParams(size=size, distance=distance),
     )
@@ -47,37 +42,16 @@ def content_to_id(text: str) -> str:
     return hashlib.md5(text.encode()).hexdigest()
 
 
-async def append_vector(
-    client: AsyncQdrantClient,
-    collection_name: str,
-    vector: list[float],
-    payload: Payload,
-):
-    exists = await client.collection_exists(collection_name)
-    if not exists:
-        await create_vector_store(client, collection_name, len(vector))
-
-    point_id = content_to_id(payload.content)
-
-    await client.upsert(
-        collection_name=collection_name,
-        wait=True,
-        points=[PointStruct(id=point_id, vector=vector, payload=payload.to_dict())],
-    )
-
-
 async def ensure_collection_exists(
-    client: AsyncQdrantClient,
     collection_name: str,
     vector_size: int,
 ):
-    exists = await client.collection_exists(collection_name)
+    exists = await _client.collection_exists(collection_name)
     if not exists:
-        await create_vector_store(client, collection_name, vector_size)
+        await create_vector_store(collection_name, vector_size)
 
 
 async def append_vectors_batch(
-    client: AsyncQdrantClient,
     collection_name: str,
     vectors: list[list[float]],
     payloads: list[Payload],
@@ -90,7 +64,7 @@ async def append_vectors_batch(
         )
         for vector, payload in zip(vectors, payloads)
     ]
-    await client.upsert(
+    await _client.upsert(
         collection_name=collection_name,
         wait=True,
         points=points,
@@ -98,16 +72,15 @@ async def append_vectors_batch(
 
 
 async def retrieve_info(
-    client: AsyncQdrantClient,
     collection_name: str,
     vector: list[float],
     n_items: int = 3,
 ) -> list[RetrievedDocument]:
-    exists = await client.collection_exists(collection_name)
+    exists = await _client.collection_exists(collection_name)
     if not exists:
         return []
 
-    search_result = await client.query_points(
+    search_result = await _client.query_points(
         collection_name=collection_name,
         query=vector,
         with_payload=True,
@@ -127,17 +100,15 @@ async def retrieve_info(
     ]
 
 
-async def clean_vector_store(client: AsyncQdrantClient, collection_name: str):
-    await client.delete_collection(collection_name=collection_name)
+async def clean_vector_store(collection_name: str):
+    await _client.delete_collection(collection_name=collection_name)
 
 
-async def fetch_random_chunks(
-    client: AsyncQdrantClient, collection_name: str, n: int = 25
-) -> list[dict]:
-    count_response = await client.count(collection_name=collection_name)
+async def fetch_random_chunks(collection_name: str, n: int = 25) -> list[dict]:
+    count_response = await _client.count(collection_name=collection_name)
     count = count_response.count
 
-    all_points, _ = await client.scroll(
+    all_points, _ = await _client.scroll(
         collection_name=collection_name,
         limit=count,
         with_payload=True,

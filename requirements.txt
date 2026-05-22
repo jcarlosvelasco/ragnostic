@@ -4,3 +4,4 @@ langchain-community
 httpx
 langchain-ollama
 ragas
+fastembed
