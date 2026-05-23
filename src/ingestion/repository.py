@@ -27,6 +27,26 @@ EMBEDDING_CONCURRENCY = 20
 BATCH_SIZE = 100
 
 
+async def _embed_batch(chunks: list, sem: asyncio.Semaphore) -> list:
+    async def embed(chunk):
+        async with sem:
+            return await convert_to_embedding(chunk.content)
+
+    return await asyncio.gather(*[embed(c) for c in chunks])
+
+
+async def _iter_chunks(docs_folder_path: str):
+    for root, _, files in os.walk(docs_folder_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            with open(file_path, "r") as f:
+                content = f.read()
+            chunks = chunk_document_content(content, file_path)
+            logger.info("Chunked %s (%d chunks)", file_path, len(chunks))
+            for chunk in chunks:
+                yield chunk
+
+
 async def load_docs():
     collection_name = get_docs_collection_name()
     is_empty = await is_store_empty(collection_name)
@@ -38,44 +58,39 @@ async def load_docs():
     await store_docs_in_files()
 
     docs_folder_path = get_docs_folder_path()
-    all_chunks = []
-    for root, _, files in os.walk(docs_folder_path):
-        for file in files:
-            file_path = os.path.join(root, file)
-            with open(file_path, "r") as f:
-                content = f.read()
-            chunks = chunk_document_content(content, file_path)
-            logger.info("Queued %s (%d chunks)", file_path, len(chunks))
-            all_chunks.extend(chunks)
+    sem = asyncio.Semaphore(EMBEDDING_CONCURRENCY)
+    collection_initialized = False
+    total_stored = 0
+    batch: list = []
 
-    if not all_chunks:
+    async def flush_batch(batch: list):
+        nonlocal collection_initialized, total_stored
+
+        embeddings = await _embed_batch(batch, sem)
+
+        if not collection_initialized:
+            await ensure_collection_exists(collection_name, len(embeddings[0]))
+            collection_initialized = True
+
+        await append_vectors_batch(collection_name, embeddings, batch)
+        total_stored += len(batch)
+        logger.info("Progress: %d chunks stored so far", total_stored)
+
+    logger.info("Starting streaming ingestion...")
+    async for chunk in _iter_chunks(docs_folder_path):
+        batch.append(chunk)
+        if len(batch) >= BATCH_SIZE:
+            await flush_batch(batch)
+            batch = []
+
+    if batch:
+        await flush_batch(batch)
+
+    if total_stored == 0:
         logger.info("No chunks found, skipping ingestion")
         return
 
-    total = len(all_chunks)
-    logger.info("Total chunks to ingest: %d", total)
-
-    sem = asyncio.Semaphore(EMBEDDING_CONCURRENCY)
-
-    async def embed(chunk):
-        async with sem:
-            return await convert_to_embedding(chunk.content)
-
-    logger.info("Generating embeddings...")
-    embeddings = await asyncio.gather(*[embed(c) for c in all_chunks])
-
-    await ensure_collection_exists(collection_name, len(embeddings[0]))
-
-    logger.info("Storing vectors in Qdrant...")
-    for i in range(0, total, BATCH_SIZE):
-        batch_chunks = all_chunks[i : i + BATCH_SIZE]
-        batch_embeddings = embeddings[i : i + BATCH_SIZE]
-        await append_vectors_batch(collection_name, batch_embeddings, batch_chunks)
-        logger.info(
-            "  Progress: %d/%d chunks stored", min(i + BATCH_SIZE, total), total
-        )
-
-    logger.info("Ingestion complete (%d chunks)", total)
+    logger.info("Ingestion complete (%d chunks)", total_stored)
 
 
 async def clean_all_data():
@@ -85,8 +100,6 @@ async def clean_all_data():
             file_path = os.path.join(root, file)
             os.remove(file_path)
     logger.info("All data cleaned from %s", data_path)
-
     collection_name = get_docs_collection_name()
-
     await clean_vector_store(collection_name)
     logger.info("Vector store cleaned: %s", collection_name)
