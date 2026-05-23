@@ -19,7 +19,9 @@ class CrossEncoderReranker:
         if self._model is None:
             logger.info(f"Loading reranker model: {self.model_name}...")
             try:
-                self._model = TextCrossEncoder(model_name=self.model_name)
+                self._model = TextCrossEncoder(
+                    model_name=self.model_name, cache_dir="/cache/fastembed"
+                )
                 logger.info("Reranker model loaded successfully")
             except Exception as e:
                 self._load_failed = True
