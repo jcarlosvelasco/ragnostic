@@ -129,7 +129,7 @@ async def main():
         golden = json.load(f)
 
     print(f"Loaded {len(golden)} Q&A pairs\n")
-    rows = await collect_results(golden[:2])
+    rows = await collect_results(golden)
     print(f"\nCollected {len(rows)} results, running RAGAS...\n")
 
     scores = await run_ragas(rows)
