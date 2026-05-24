@@ -5,9 +5,11 @@ import os
 import httpx
 from langchain_ollama import OllamaEmbeddings
 
+from settings import settings
+
 logger = logging.getLogger(__name__)
 
-EMBEDDING_MODEL = "nomic-embed-text"
+EMBEDDING_MODEL = settings.embedding_model
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
 
 embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL, base_url=OLLAMA_BASE_URL)

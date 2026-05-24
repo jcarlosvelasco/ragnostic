@@ -7,12 +7,13 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_ollama import ChatOllama
 from pydantic import BaseModel
 
+from settings import settings
 from src.generation.prompts import system_prompt_template
 from src.shared.model.RetrievedDocument import RetrievedDocument
 
 logger = logging.getLogger(__name__)
 
-CHAT_MODEL = "gemma4:e2b-mlx"
+CHAT_MODEL = settings.generator_model
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
 

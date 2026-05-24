@@ -6,11 +6,13 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
 )
 
+from settings import settings
 from src.ingestion.core.chunk_utils import clean_mdx
 from src.ingestion.model.payload import Payload
 
-CHUNK_SIZE = 800
-CHUNK_OVERLAP = 100
+CHUNK_SIZE = settings.chunk_size
+CHUNK_OVERLAP = settings.chunk_overlap
+MIN_CHUNK_SIZE = settings.chunk_min_size
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +40,6 @@ char_splitter = RecursiveCharacterTextSplitter(
         "",
     ],
 )
-
-MIN_CHUNK_SIZE = 100
 
 
 def merge_chunks(sub_chunks: list[Document]) -> list[Document]:

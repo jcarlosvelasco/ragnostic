@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 from pathlib import Path
 from statistics import mean
 from typing import List
@@ -19,12 +20,13 @@ from ragas.metrics.collections import (
 
 from evals.schema.EvaluationRow import EvaluationRow
 from evals.schema.ExperimentResult import ExperimentResult
+from settings import settings
 
 DATASET_PATH = "evals/golden_dataset.json"
 API_URL = "http://localhost:8000/retrieve"
 
-MODEL_NAME = "gemma4:e2b-mlx"
-EMBEDDINGS_MODEL = "nomic-embed-text"
+MODEL_NAME = settings.eval_model
+EMBEDDINGS_MODEL = settings.eval_embedding_model
 
 THRESHOLDS = {
     "faithfulness": 0.5,
@@ -127,7 +129,7 @@ async def main():
         golden = json.load(f)
 
     print(f"Loaded {len(golden)} Q&A pairs\n")
-    rows = await collect_results(golden)
+    rows = await collect_results(golden[:2])
     print(f"\nCollected {len(rows)} results, running RAGAS...\n")
 
     scores = await run_ragas(rows)
@@ -163,17 +165,20 @@ async def main():
             failed.append(metric)
 
     result_data = {
+        "config": settings.model_dump(),
         "num_questions": len(scores),
         "average_scores": aggregated,
         "individual_results": [score.model_dump() for score in scores],
     }
 
+    date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
     Path("evals/results").mkdir(parents=True, exist_ok=True)
 
-    with open("evals/results/latest.json", "w") as f:
+    with open(f"evals/results/{date}.json", "w") as f:
         json.dump(result_data, f, indent=2)
 
-    print("\nSaved results to evals/results/latest.json")
+    print(f"\nSaved results to evals/results/{date}.json")
 
     if failed:
         print(f"\n❌ Failed metrics: {failed}")
