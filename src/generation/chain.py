@@ -12,7 +12,7 @@ from src.shared.model.RetrievedDocument import RetrievedDocument
 
 logger = logging.getLogger(__name__)
 
-CHAT_MODEL = "gemma4:e2b"
+CHAT_MODEL = "gemma4:e2b-mlx"
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
 

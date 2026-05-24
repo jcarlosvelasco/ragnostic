@@ -17,7 +17,7 @@ services:
       - "8000:8000"
     volumes:
       - app_docs:/src/data/docs
-      - model_cache:/cache
+      - model_cache:/cache/fastembed
 
     depends_on:
       - qdrant

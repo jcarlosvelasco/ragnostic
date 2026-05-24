@@ -6,7 +6,6 @@ from typing import List
 import httpx
 from datasets.info import json
 from openai import AsyncOpenAI
-from pydantic import BaseModel
 from ragas import experiment
 from ragas.embeddings import BaseRagasEmbedding, OpenAIEmbeddings
 from ragas.llms import llm_factory
@@ -18,10 +17,13 @@ from ragas.metrics.collections import (
     Faithfulness,
 )
 
+from evals.schema.EvaluationRow import EvaluationRow
+from evals.schema.ExperimentResult import ExperimentResult
+
 DATASET_PATH = "evals/golden_dataset.json"
 API_URL = "http://localhost:8000/retrieve"
 
-MODEL_NAME = "gemma4:e2b"
+MODEL_NAME = "gemma4:e2b-mlx"
 EMBEDDINGS_MODEL = "nomic-embed-text"
 
 THRESHOLDS = {
@@ -30,20 +32,6 @@ THRESHOLDS = {
     "context_precision": 0.5,
     "context_recall": 0.5,
 }
-
-
-class ExperimentResult(BaseModel):
-    faithfulness: float
-    answer_relevancy: float
-    context_precision: float
-    context_recall: float
-
-
-class EvaluationRow(BaseModel):
-    user_input: str
-    response: str
-    retrieved_contexts: list[str]
-    reference: str
 
 
 @experiment(ExperimentResult)
@@ -87,11 +75,10 @@ async def run_evaluation(
 
 
 async def run_ragas(rows: list[EvaluationRow]) -> List[ExperimentResult]:
-    llm_client = AsyncOpenAI(api_key="ollama", base_url="http://localhost:11434/v1")
-    llm = llm_factory(model=MODEL_NAME, provider="openai", client=llm_client)
+    ollama_client = AsyncOpenAI(api_key="ollama", base_url="http://localhost:11434/v1")
 
-    emb_client = AsyncOpenAI(api_key="ollama", base_url="http://localhost:11434/v1")
-    embeddings = OpenAIEmbeddings(client=emb_client, model=EMBEDDINGS_MODEL)
+    llm = llm_factory(model=MODEL_NAME, provider="openai", client=ollama_client)
+    embeddings = OpenAIEmbeddings(client=ollama_client, model=EMBEDDINGS_MODEL)
 
     results: list[ExperimentResult] = []
     for i, row in enumerate(rows):
@@ -100,7 +87,7 @@ async def run_ragas(rows: list[EvaluationRow]) -> List[ExperimentResult]:
             result = await run_evaluation(row, llm, embeddings)
             results.append(result)
         except Exception as e:
-            print(f"  ⚠️  Error en pregunta {i + 1}: {e} — skipping")
+            print(f"Error in question {i + 1}: {e} — skipping")
     return results
 
 
@@ -130,7 +117,7 @@ async def collect_results(golden: list[dict]) -> list[EvaluationRow]:
                 )
             )
         except Exception as e:
-            print(f"  ⚠️  Error: {e} — skipping")
+            print(f"Error collecting result for question {i + 1}: {e} — skipping")
             continue
     return rows
 

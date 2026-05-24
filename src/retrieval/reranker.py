@@ -1,10 +1,12 @@
 import logging
+import os
 
 from fastembed.rerank.cross_encoder import TextCrossEncoder
 
 from src.shared.model.RetrievedDocument import RetrievedDocument
 
 logger = logging.getLogger(__name__)
+FASTEMBED_CACHE_PATH = os.getenv("FASTEMBED_CACHE_PATH", "/cache/fastembed")
 
 
 class CrossEncoderReranker:
@@ -20,7 +22,7 @@ class CrossEncoderReranker:
             logger.info(f"Loading reranker model: {self.model_name}...")
             try:
                 self._model = TextCrossEncoder(
-                    model_name=self.model_name, cache_dir="/cache/fastembed"
+                    model_name=self.model_name, cache_dir=FASTEMBED_CACHE_PATH
                 )
                 logger.info("Reranker model loaded successfully")
             except Exception as e:
@@ -59,6 +61,6 @@ reranker = CrossEncoderReranker()
 def rerank(
     query: str, docs: list[RetrievedDocument], k_final: int = 3
 ) -> list[RetrievedDocument]:
-    logger.info(f"docs: {docs}")
+    # logger.info(f"docs: {docs}")
 
     return reranker.rerank(query, docs, k_final)
