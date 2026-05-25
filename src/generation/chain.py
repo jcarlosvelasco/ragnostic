@@ -5,6 +5,7 @@ import os
 import httpx
 from langchain_core.output_parsers import StrOutputParser
 from langchain_ollama import ChatOllama
+from langfuse.callback import CallbackHandler
 from pydantic import BaseModel
 
 from settings import settings
@@ -19,6 +20,13 @@ OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:1143
 
 llm = ChatOllama(model=CHAT_MODEL, temperature=0.2, base_url=OLLAMA_BASE_URL)
 chain = system_prompt_template | llm | StrOutputParser()
+
+
+langfuse_handler = CallbackHandler(
+    host=os.getenv("LANGFUSE_HOST", "http://langfuse-server:3000"),
+    public_key=os.getenv("LANGFUSE_PUBLIC_KEY"),
+    secret_key=os.getenv("LANGFUSE_SECRET_KEY"),
+)
 
 
 async def ensure_generation_model():
@@ -52,7 +60,14 @@ async def generate_response(
     retrieved_documents = [doc.model_dump() for doc in documents]
 
     result = await chain.ainvoke(
-        {"context": json.dumps(retrieved_documents), "question": query}
+        {"context": json.dumps(retrieved_documents), "question": query},
+        config={
+            "callbacks": [langfuse_handler],
+            "metadata": {
+                "query": query,
+                "num_documents": len(documents),
+            },
+        },
     )
 
     retrieved_documents_content_json = json.dumps([doc.content for doc in documents])
