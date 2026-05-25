@@ -51,7 +51,6 @@ async def ensure_generation_model():
 
 class GenerateResponse(BaseModel):
     response: str
-    context: str
 
 
 async def generate_response(
@@ -70,6 +69,4 @@ async def generate_response(
         },
     )
 
-    retrieved_documents_content_json = json.dumps([doc.content for doc in documents])
-
-    return GenerateResponse(response=result, context=retrieved_documents_content_json)
+    return GenerateResponse(response=result)
