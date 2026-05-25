@@ -5,11 +5,11 @@ import os
 import httpx
 from langchain_core.output_parsers import StrOutputParser
 from langchain_ollama import ChatOllama
-from langfuse.callback import CallbackHandler
 from pydantic import BaseModel
 
 from settings import settings
 from src.generation.prompts import system_prompt_template
+from src.shared.langfuse import langfuse_handler
 from src.shared.model.RetrievedDocument import RetrievedDocument
 
 logger = logging.getLogger(__name__)
@@ -19,13 +19,8 @@ CHAT_MODEL = settings.generator_model
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
 
 llm = ChatOllama(model=CHAT_MODEL, temperature=0.2, base_url=OLLAMA_BASE_URL)
-chain = system_prompt_template | llm | StrOutputParser()
-
-
-langfuse_handler = CallbackHandler(
-    host=os.getenv("LANGFUSE_HOST", "http://langfuse-server:3000"),
-    public_key=os.getenv("LANGFUSE_PUBLIC_KEY"),
-    secret_key=os.getenv("LANGFUSE_SECRET_KEY"),
+chain = (system_prompt_template | llm | StrOutputParser()).with_config(
+    run_name="Generate response with provided context"
 )
 
 

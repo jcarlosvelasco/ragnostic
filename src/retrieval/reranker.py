@@ -3,6 +3,7 @@ import os
 
 from fastembed.rerank.cross_encoder import TextCrossEncoder
 
+from src.shared.langfuse import langfuse
 from src.shared.model.RetrievedDocument import RetrievedDocument
 
 logger = logging.getLogger(__name__)
@@ -45,11 +46,28 @@ class CrossEncoderReranker:
 
         try:
             logger.info(f"reranking: query={query}, texts={texts}")
+
+            trace = langfuse.trace(name="reranker")
+            span = trace.span(
+                name="cross-encoder-rerank",
+                input={"query": query, "num_docs": len(docs), "k_final": k_final},
+            )
+
             scores = list(self._model.rerank(query, texts))
             logger.info(f"scores: {scores}")
 
             ranked = sorted(zip(docs, scores), key=lambda x: x[1], reverse=True)
-            return [doc for doc, _ in ranked[:k_final]]
+            result = [doc for doc, _ in ranked[:k_final]]
+
+            span.end(
+                output={
+                    "num_results": len(result),
+                    "top_score": float(scores[0]) if scores else None,
+                }
+            )
+            langfuse.flush()
+
+            return result
         except Exception as e:
             print(f"[WARN] Reranker failed {e}")
             return docs[:k_final]
