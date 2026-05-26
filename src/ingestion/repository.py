@@ -5,6 +5,7 @@ from pathlib import Path
 
 from src.ingestion.core.chunker import chunk_document_content
 from src.ingestion.core.scraper import store_docs_in_files
+from src.ingestion.model.payload import Payload
 from src.shared.embedder import convert_to_embedding
 from src.shared.vector_store import (
     append_vectors_batch,
@@ -47,7 +48,7 @@ async def _iter_chunks(docs_folder_path: str):
                 yield chunk
 
 
-async def load_docs():
+async def load_docs() -> None:
     collection_name = get_docs_collection_name()
     is_empty = await is_store_empty(collection_name)
     if not is_empty:
@@ -61,9 +62,9 @@ async def load_docs():
     sem = asyncio.Semaphore(EMBEDDING_CONCURRENCY)
     collection_initialized = False
     total_stored = 0
-    batch: list = []
+    batch: list[Payload] = []
 
-    async def flush_batch(batch: list):
+    async def flush_batch(batch: list[Payload]) -> None:
         nonlocal collection_initialized, total_stored
 
         embeddings = await _embed_batch(batch, sem)

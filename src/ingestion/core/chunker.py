@@ -43,7 +43,7 @@ char_splitter = RecursiveCharacterTextSplitter(
 
 
 def merge_chunks(sub_chunks: list[Document]) -> list[Document]:
-    merged = []
+    merged: list[Document] = []
 
     for doc in sub_chunks:
         if merged and len(doc.page_content) < MIN_CHUNK_SIZE:
