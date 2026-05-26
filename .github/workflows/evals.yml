@@ -57,6 +57,9 @@ jobs:
           QDRANT_URL: http://localhost:6333
           LLM_PROVIDER: mock
 
+      - name: Load documents
+        run: curl -sf -X POST http://localhost:8000/load_docs
+
       - name: Smoke test
         run: |
           curl -sf -X POST http://localhost:8000/retrieve \
