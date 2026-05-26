@@ -264,12 +264,18 @@ The CI pipeline runs linting, type checking, unit tests, and a smoke test using 
 
 Latest evaluation results (2026-05-24):
 
-| Metric | Score |
-|--------|-------|
-| **Faithfulness** | 93.01% |
-| **Answer Relevancy** | 84.27% |
-| **Context Precision** | 77.35% |
-| **Context Recall** | 66.67% |
+Generation model: "gemma4:e2b-mlx"
+Chunk size: 700
+Chunk overlap: 100
+Chunk min size: 100
+Embedding model: "nomic-embed-text"
+
+| Metric | Baseline Score | With Reranker Score |
+|--------|-------|-------|
+| **Faithfulness** | 91.86% | 93.01% |
+| **Answer Relevancy** | 79.55% | 84.27% |
+| **Context Precision** | 54.76% | 77.35% |
+| **Context Recall** | 61.90% | 66.67% |
 
 - **Faithfulness**: High accuracy in response grounding to context
 - **Answer Relevancy**: Strong alignment between answers and queries
