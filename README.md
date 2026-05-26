@@ -281,3 +281,4 @@ Embedding model: "nomic-embed-text"
 - **Answer Relevancy**: Strong alignment between answers and queries
 - **Context Precision**: Good relevance of retrieved documents
 - **Context Recall**: Room for improvement in capturing all relevant documents
+# test trigger
