@@ -245,6 +245,21 @@ python evals/run_evals.py --dataset evals/golden_dataset.json
 # Results saved in evals/results/
 ```
 
+
+
+Pasa esto de un readme a ingles: ## Development Workflow
+
+### Running evals (requires Apple Silicon)
+\
+bash
+python evals/run_evals.py
+\
+
+### CI
+
+The CI pipeline runs linting, type checking, unit tests, and a smoke test using an LLM mock. Full evals are run locally before merging into main.
+
+
 ### Current Performance Metrics
 
 Latest evaluation results (2026-05-24):

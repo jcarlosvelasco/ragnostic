@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint
+        run: |
+          ruff check src/
+          mypy src/
+
+      - name: Unit tests
+        run: pytest tests/unit/ -v
+
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Start Qdrant
+        run: docker compose up -d qdrant
+
+      - name: Start API with mock LLM
+        run: |
+          uvicorn src.api.main:app --host 0.0.0.0 --port 8000 &
+          sleep 3
+        env:
+          QDRANT_URL: http://localhost:6333
+          LLM_PROVIDER: mock
+
+      - name: Smoke test
+        run: |
+          curl -sf -X POST http://localhost:8000/ask \
+            -H "Content-Type: application/json" \
+            -d '{"question": "What is LangChain?"}' \
+            | python -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          assert 'answer' in data
+          assert 'contexts' in data
+          assert len(data['contexts']) > 0
+          print('✅ Smoke test passed')
+          "
