@@ -1,5 +1,4 @@
 import logging
-import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -19,9 +18,8 @@ logging.basicConfig(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if os.getenv("LLM_PROVIDER") != "mock":
-        await ensure_generation_model()
-        await ensure_embedding_model()
+    await ensure_generation_model()
+    await ensure_embedding_model()
     yield
 
 

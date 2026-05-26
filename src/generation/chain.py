@@ -42,6 +42,8 @@ chain = (system_prompt_template | llm | StrOutputParser()).with_config(
 
 
 async def ensure_generation_model():
+    if provider == "mock":
+        return
     url = f"{OLLAMA_BASE_URL}/api/pull"
     data = {"model": CHAT_MODEL}
     logger.info("Pulling model %s...", CHAT_MODEL)

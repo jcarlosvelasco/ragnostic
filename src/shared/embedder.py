@@ -3,6 +3,8 @@ import logging
 import os
 
 import httpx
+from langchain_core.embeddings import Embeddings
+from langchain_core.embeddings.fake import FakeEmbeddings
 from langchain_ollama import OllamaEmbeddings
 
 from settings import settings
@@ -12,10 +14,19 @@ logger = logging.getLogger(__name__)
 EMBEDDING_MODEL = settings.embedding_model
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
 
-embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL, base_url=OLLAMA_BASE_URL)
+provider = os.getenv("LLM_PROVIDER", "ollama")
+
+embeddings: Embeddings
+if provider == "mock":
+    embeddings = FakeEmbeddings(size=384)
+else:
+    embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL, base_url=OLLAMA_BASE_URL)
 
 
 async def ensure_embedding_model():
+    if provider == "mock":
+        return
+
     url = f"{OLLAMA_BASE_URL}/api/pull"
     data = {"model": EMBEDDING_MODEL}
     logger.info("Pulling model %s...", EMBEDDING_MODEL)
