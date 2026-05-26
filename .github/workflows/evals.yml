@@ -59,14 +59,14 @@ jobs:
 
       - name: Smoke test
         run: |
-          curl -sf -X POST http://localhost:8000/ask \
+          curl -sf -X POST http://localhost:8000/retrieve \
             -H "Content-Type: application/json" \
-            -d '{"question": "What is LangChain?"}' \
+            -d '{"query": "What is LangChain?"}' \
             | python -c "
           import json, sys
           data = json.load(sys.stdin)
           assert 'answer' in data
-          assert 'contexts' in data
-          assert len(data['contexts']) > 0
+          assert 'context' in data
+          assert len(data['context']) > 0
           print('✅ Smoke test passed')
           "
