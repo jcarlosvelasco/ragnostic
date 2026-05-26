@@ -264,10 +264,10 @@ The CI pipeline runs linting, type checking, unit tests, and a smoke test using 
 
 Latest evaluation results (2026-05-24):
 
-Generation model: "gemma4:e2b-mlx"
-Chunk size: 700
-Chunk overlap: 100
-Chunk min size: 100
+Generation model: "gemma4:e2b-mlx"  
+Chunk size: 700  
+Chunk overlap: 100  
+Chunk min size: 100  
 Embedding model: "nomic-embed-text"
 
 | Metric | Baseline Score | With Reranker Score |
