@@ -1,3 +1,6 @@
+[tool.mypy]
+explicit_package_bases = true
+
 [project]
 name = "docs-rag"
 version = "0.1.0"
@@ -13,6 +16,9 @@ dependencies = [
     "langchain-ollama>=1.1.0",
     "langfuse==3.6.0",
     "langfuse-langchain==2.60.10.1",
+    "mypy>=2.1.0",
+    "pytest>=9.0.3",
     "qdrant-client>=1.18.0",
     "ragas>=0.4.3",
+    "ruff>=0.15.14",
 ]
