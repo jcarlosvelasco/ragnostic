@@ -1,13 +1,10 @@
-name: RAG Evals
+name: CI
 
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   lint-and-test:
@@ -21,7 +18,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt -r requirements-dev.txt
+        run: pip install -r requirements.txt
 
       - name: Lint
         run: |
@@ -42,7 +39,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt -r requirements-dev.txt
+        run: pip install -r requirements.txt
 
       - name: Start Qdrant
         run: docker compose up -d qdrant
@@ -53,7 +50,7 @@ jobs:
           sleep 3
         env:
           QDRANT_URL: http://localhost:6333
-          LLM_PROVIDER: mock # Variable de entorno para usar mock en CI
+          LLM_PROVIDER: mock
 
       - name: Smoke test
         run: |
