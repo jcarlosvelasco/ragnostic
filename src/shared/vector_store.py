@@ -1,4 +1,5 @@
 import hashlib
+import os
 import random
 
 from qdrant_client.async_qdrant_client import AsyncQdrantClient
@@ -7,7 +8,8 @@ from qdrant_client.models import Distance, PointStruct, VectorParams
 from src.ingestion.model.payload import Payload
 from src.shared.model.RetrievedDocument import RetrievedDocument
 
-_client = AsyncQdrantClient(url="http://qdrant:6333")
+QDRANT_URL = os.getenv("QDRANT_URL", "http://qdrant:6333")
+_client = AsyncQdrantClient(url=QDRANT_URL)
 
 
 def get_docs_collection_name() -> str:
