@@ -20,7 +20,7 @@ services:
       SALT: ${LANGFUSE_SALT}
       ENCRYPTION_KEY: ${LANGFUSE_ENCRYPTION_KEY}
 
-      # Inicialización headless opcional (evita tener que crear cuenta manualmente)
+      # Optional headless setup
       LANGFUSE_INIT_ORG_ID: my-org
       LANGFUSE_INIT_PROJECT_ID: my-project
       LANGFUSE_INIT_PROJECT_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY}
