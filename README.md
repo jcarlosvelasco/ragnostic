@@ -273,3 +273,7 @@ python evals/run_evals.py
 | `LANGFUSE_SECRET_KEY` | Langfuse secret key | — |
 
 See `.env.example` for the full list.
+
+## License
+
+Check [LICENSE.md](LICENSE.md)
