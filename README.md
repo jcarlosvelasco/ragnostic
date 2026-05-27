@@ -38,9 +38,9 @@ QUERY PIPELINE (per request)
 User question
     │
     ├─ Embed query          nomic-embed-text
-    ├─ Retrieve k=10        Qdrant semantic search
+    ├─ Retrieve k=20        Qdrant semantic search
     ├─ Rerank               cross-encoder/ms-marco-MiniLM-L-6-v2
-    ├─ Select top-3         highest reranker score
+    ├─ Select top-5         highest reranker score
     └─ Generate             gemma4:e2b via Ollama + LangChain chain
 
 
@@ -61,11 +61,11 @@ Every request → Langfuse (traces · latency per step · token usage)
 
 These are the decisions that had measurable impact, with the data to back them up.
 
-**Reranker: k=10 retrieve → rerank → top-3**
-Without reranker: context_precision 54.76%. With CrossEncoder reranking: 77.35%. +22 points for ~30ms extra latency. Worth it.
+**Reranker: k=20 retrieve → rerank → top-5**
+Without reranker: context_precision 54.76%. With CrossEncoder reranking: 79.07%. +24 points for ~30ms extra latency. Worth it.
 
-**Chunk size: 700 tokens, overlap: 100**
-Tested 200 (original), 500, and 700. At 200, chunks were too small for the model to generate useful ground truths, questions ended up about code snippets rather than concepts. At 700, chunks contain full ideas and the golden dataset quality improved significantly.
+**Chunk size: 600 tokens, overlap: 90**
+Tested 200 (original), 500, and 600. At 200, chunks were too small for the model to generate useful ground truths, questions ended up about code snippets rather than concepts. At 600, chunks contain full ideas and the golden dataset quality improved significantly.
 
 **Scraper filters: excluded `frontend`, `api-reference`, `deepagents` URLs**
 These pages contain React components, CSS, and YAML specs, not documentation prose. Including them polluted the vector store with noise that hurt retrieval quality.
