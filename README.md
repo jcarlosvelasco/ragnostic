@@ -1,6 +1,6 @@
 # Docs RAG: Document Retrieval & Augmented Generation Pipeline
 
-A complete **Retrieval-Augmented Generation (RAG)** solution for document processing, indexing, and retrieval with enhanced response generation using LLMs, fully local.
+A complete **Retrieval-Augmented Generation (RAG)** solution for document processing, indexing, and retrieval using local models.
 
 ## 🎯 Key Features
 

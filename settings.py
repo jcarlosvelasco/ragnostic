@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     embedding_model: str
     eval_model: str
     eval_embedding_model: str
+    retriever_k: int
+    reranker_k: int
 
 
 settings = Settings(
@@ -19,4 +21,6 @@ settings = Settings(
     embedding_model="nomic-embed-text",
     eval_model="gemma4:e2b-mlx",
     eval_embedding_model="nomic-embed-text",
+    retriever_k=10,
+    reranker_k=3,
 )
