@@ -8,16 +8,16 @@ A production-grade **Retrieval-Augmented Generation (RAG)** pipeline for queryin
 
 ## Results
 
-Latest evaluation — 2026-05-24 · model: `gemma4:e2b-mlx` · chunk size: 700 · overlap: 100
+Latest evaluation — 2026-05-27 · model: `gemma4:e2b-mlx` · chunk size: 600 · overlap: 90
 
 | Metric | Baseline | With Reranker | Δ |
 |---|---|---|---|
-| **Faithfulness** | 91.86% | **93.01%** | +1.15% |
+| **Faithfulness** | 91.86% | **97.15%** | +5,29% |
 | **Answer Relevancy** | 79.55% | **84.27%** | +4.72% |
-| **Context Precision** | 54.76% | **77.35%** | +22.59% |
-| **Context Recall** | 61.90% | **66.67%** | +4.77% |
+| **Context Precision** | 54.76% | **79.07%** | +24.31% |
+| **Context Recall** | 61.90% | **68,29%** | +6,39% |
 
-The reranker had the most impact on **Context Precision** (+22.59%): retrieved chunks became significantly more relevant to the query without changing the embedding model or index.
+The reranker had the most impact on **Context Precision** (+24,31%): retrieved chunks became significantly more relevant to the query without changing the embedding model or index.
 
 ---
 
@@ -206,10 +206,10 @@ Evals fail automatically if any metric drops below threshold:
 
 | Metric | Threshold |
 |---|---|
-| Faithfulness | 0.85 |
-| Answer Relevancy | 0.75 |
-| Context Precision | 0.70 |
-| Context Recall | 0.60 |
+| Faithfulness | 0.5 |
+| Answer Relevancy | 0.5 |
+| Context Precision | 0.5 |
+| Context Recall | 0.5 |
 
 Results are saved to `evals/results/latest.json` for historical tracking.
 

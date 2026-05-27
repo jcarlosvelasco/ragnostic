@@ -11,16 +11,18 @@ class Settings(BaseSettings):
     eval_embedding_model: str
     retriever_k: int
     reranker_k: int
+    reranker_model: str
 
 
 settings = Settings(
     generator_model="gemma4:e2b-mlx",
-    chunk_size=700,
-    chunk_overlap=100,
-    chunk_min_size=100,
+    chunk_size=600,
+    chunk_overlap=90,
+    chunk_min_size=90,
     embedding_model="nomic-embed-text",
     eval_model="gemma4:e2b-mlx",
     eval_embedding_model="nomic-embed-text",
-    retriever_k=10,
-    reranker_k=3,
+    retriever_k=20,
+    reranker_k=5,
+    reranker_model="Xenova/ms-marco-MiniLM-L-6-v2",
 )

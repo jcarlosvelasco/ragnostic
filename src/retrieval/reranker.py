@@ -3,6 +3,7 @@ import os
 
 from fastembed.rerank.cross_encoder import TextCrossEncoder
 
+from settings import settings
 from src.shared.langfuse import langfuse
 from src.shared.model.RetrievedDocument import RetrievedDocument
 
@@ -73,7 +74,7 @@ class CrossEncoderReranker:
             return docs[:k_final]
 
 
-reranker = CrossEncoderReranker()
+reranker = CrossEncoderReranker(model_name=settings.reranker_model)
 
 
 def rerank(

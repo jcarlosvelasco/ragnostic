@@ -106,9 +106,17 @@ async def collect_results(golden: list[dict]) -> list[EvaluationRow]:
         print(f"Running question {i + 1}/{len(golden)}: {item['question'][:60]}...")
         try:
             result = await query_rag(item["question"])
-            contexts = result["context"]
-            if isinstance(contexts, str):
-                contexts = json.loads(contexts)
+            raw_contexts = result["context"]
+            if isinstance(raw_contexts, str):
+                contexts = json.loads(raw_contexts)
+            elif (
+                isinstance(raw_contexts, list)
+                and raw_contexts
+                and isinstance(raw_contexts[0], dict)
+            ):
+                contexts = [doc["content"] for doc in raw_contexts]
+            else:
+                contexts = raw_contexts
 
             rows.append(
                 EvaluationRow(
