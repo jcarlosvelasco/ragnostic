@@ -17,7 +17,7 @@ Latest evaluation — 2026-05-24 · model: `gemma4:e2b-mlx` · chunk size: 700 �
 | **Context Precision** | 54.76% | **77.35%** | +22.59% |
 | **Context Recall** | 61.90% | **66.67%** | +4.77% |
 
-The reranker had the most impact on **Context Precision** (+22.59%) — retrieved chunks became significantly more relevant to the query without changing the embedding model or index.
+The reranker had the most impact on **Context Precision** (+22.59%): retrieved chunks became significantly more relevant to the query without changing the embedding model or index.
 
 ---
 
@@ -65,10 +65,10 @@ These are the decisions that had measurable impact, with the data to back them u
 Without reranker: context_precision 54.76%. With CrossEncoder reranking: 77.35%. +22 points for ~30ms extra latency. Worth it.
 
 **Chunk size: 700 tokens, overlap: 100**
-Tested 200 (original), 500, and 700. At 200, chunks were too small for the model to generate useful ground truths — questions ended up about code snippets rather than concepts. At 700, chunks contain full ideas and the golden dataset quality improved significantly.
+Tested 200 (original), 500, and 700. At 200, chunks were too small for the model to generate useful ground truths, questions ended up about code snippets rather than concepts. At 700, chunks contain full ideas and the golden dataset quality improved significantly.
 
 **Scraper filters: excluded `frontend`, `api-reference`, `deepagents` URLs**
-These pages contain React components, CSS, and YAML specs — not documentation prose. Including them polluted the vector store with noise that hurt retrieval quality.
+These pages contain React components, CSS, and YAML specs, not documentation prose. Including them polluted the vector store with noise that hurt retrieval quality.
 
 **`RecursiveCharacterTextSplitter` over fixed-size character chunking**
 Fixed-size chunking truncated mid-word (`"emory.InMemorySaver"`). Recursive splitting respects paragraph → sentence → word hierarchy, producing semantically coherent chunks.
@@ -77,7 +77,7 @@ Fixed-size chunking truncated mid-word (`"emory.InMemorySaver"`). Recursive spli
 Best open-source embedding model available via Ollama. 768-dim vectors, fast inference on Apple Silicon, strong retrieval performance on technical documentation.
 
 **LLM: `gemma4:e2b-mlx`**
-MLX-optimized for Apple Silicon. Runs at ~40 tokens/s on M1 16GB — fast enough for development and evaluation cycles without API costs.
+MLX-optimized for Apple Silicon. Runs at ~40 tokens/s on M1 16GB, fast enough for development and evaluation cycles without API costs.
 
 **Langfuse v2**
 Lighter than v3, needs less containers and resources, enough for this use case.
@@ -255,8 +255,8 @@ python evals/run_evals.py
 
 1. Create a branch
 2. Make changes
-3. Run evals locally — verify no metric drops below threshold
-4. Push — CI runs lint, type check, unit tests, and smoke test
+3. Run evals locally: verify no metric drops below threshold
+4. Push: CI runs lint, type check, unit tests, and smoke test
 5. Merge if CI passes
 
 ---
