@@ -3,6 +3,7 @@ import logging
 import os
 
 import httpx
+from langchain_core.language_models import BaseChatModel
 from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
 from langchain_core.messages import AIMessage
 from langchain_core.output_parsers import StrOutputParser
@@ -23,7 +24,7 @@ OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:1143
 provider = os.getenv("LLM_PROVIDER", "ollama")
 
 
-def get_llm():
+def get_llm() -> BaseChatModel:
     provider = os.getenv("LLM_PROVIDER", "ollama")
     if provider == "mock":
         return GenericFakeChatModel(
