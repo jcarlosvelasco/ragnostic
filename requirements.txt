@@ -1,3 +1,4 @@
+streamlit
 fastapi[standard]
 qdrant-client
 langchain-community

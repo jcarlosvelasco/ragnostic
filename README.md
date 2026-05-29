@@ -89,6 +89,7 @@ Lighter than v3, needs less containers and resources, enough for this use case.
 | Layer | Technology |
 |---|---|
 | API | FastAPI + Pydantic + Uvicorn |
+| UI | Streamlit |
 | LLM & Embeddings | Ollama · LangChain · gemma4:e2b · nomic-embed-text |
 | Reranking | sentence-transformers · cross-encoder/ms-marco-MiniLM-L-6-v2 |
 | Vector Store | Qdrant |
@@ -117,9 +118,11 @@ docs-rag/
 │   ├── generation/
 │   │   ├── chain.py             RAG chain (prompt | LLM | parser)
 │   │   └── prompts.py           Prompt templates
-│   └── shared/
-│       ├── langfuse.py          Langfuse callback handler
-│       └── vector_store.py      Qdrant utilities
+│   ├── shared/
+│   │    ├── langfuse.py          Langfuse callback handler
+│   │    ├── vector_store.py      Qdrant utilities
+│   └── streamlit_app/
+│       └── app.py           Streamlit UI
 ├── evals/
 │   ├── golden_dataset.json      50 Q&A pairs for evaluation
 │   ├── run_evals.py             RAGAS evaluation script with thresholds
@@ -190,6 +193,7 @@ curl -X POST http://localhost:8000/ask \
 ```
 
 Interactive API docs: http://localhost:8000/docs
+Streamlit UI: http://localhost:8501
 
 ---
 

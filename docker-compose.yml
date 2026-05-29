@@ -62,6 +62,17 @@ services:
     depends_on:
       - qdrant
 
+  streamlit:
+    build:
+      context: ./
+      dockerfile: Dockerfile.streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://app:8000
+    depends_on:
+      - app
+
 volumes:
   qdrant_storage:
   app_docs:
