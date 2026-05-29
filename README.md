@@ -119,10 +119,10 @@ docs-rag/
 │   │   ├── chain.py             RAG chain (prompt | LLM | parser)
 │   │   └── prompts.py           Prompt templates
 │   ├── shared/
-│   │    ├── langfuse.py          Langfuse callback handler
-│   │    ├── vector_store.py      Qdrant utilities
+│   │    ├── langfuse.py         Langfuse callback handler
+│   │    ├── vector_store.py     Qdrant utilities
 │   └── streamlit_app/
-│       └── app.py           Streamlit UI
+│       └── app.py               Streamlit UI
 ├── evals/
 │   ├── golden_dataset.json      50 Q&A pairs for evaluation
 │   ├── run_evals.py             RAGAS evaluation script with thresholds
