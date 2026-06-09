@@ -1,36 +1,44 @@
 name: CI
 
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  lint-and-test:
+  typecheck:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
         with:
-          python-version: "3.11"
-          cache: "pip"
+          version: "0.11.18"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt -r requirements-dev.txt
+        run: uv sync --locked --all-extras --dev
 
-      - name: Lint
-        run: |
-          ruff check src/
-          mypy src/
+      - name: ty
+        run: uv run ty check
 
-      - name: Unit tests
-        run: pytest tests/unit/ -v
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
+        with:
+          version: "0.11.18"
+
+      - name: Install dependencies
+        run: uv sync --locked --all-extras --dev
+
+      - name: ruff
+        run: uv run ruff check
 
   smoke-test:
     runs-on: ubuntu-latest
